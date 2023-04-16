@@ -1,6 +1,8 @@
-﻿using System;
+﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,25 +15,49 @@ namespace Imageedit
         public static List<Bitmap> Load(string path)
         {
             List<Bitmap> list = new List<Bitmap>();
-            FileInfo[] lists;
 
             System.IO.DirectoryInfo directoryInfo = new System.IO.DirectoryInfo(path);
             if (directoryInfo.Exists)
             {
-                // ищем в корневом каталоге
-                lists= directoryInfo.GetFiles("*.(bmp|jpg|jpeg|png)", System.IO.SearchOption.TopDirectoryOnly);
-                foreach (FileInfo file in lists)
+                foreach (String ext in new String[] { "*.jpg", "*.png", "*.jpeg", "*.bmp"})
                 {
-                   
-                    list.Add(Inp(file.FullName));
+                    foreach (FileInfo file in directoryInfo.GetFiles(ext, System.IO.SearchOption.TopDirectoryOnly))
+                    {
+                        list.Add(Inp(file.FullName));
+                    }
                 }
             }
 
             return list;
         }
-        public static Tuple<int, int> GetDimensions(Bitmap img) {
+        public static List<Bitmap> Resize(List<Bitmap> list, Size size)
+        {
+            var new_list = new List<Bitmap>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                Bitmap bNew = new Bitmap(size.Width, size.Height);
 
-            Tuple<int, int> dimensions = new Tuple<int, int>(img.Height, img.Width);
+                Bitmap b = list[i];
+                using (Graphics g = Graphics.FromImage((Image)bNew))
+                {
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
+                    g.DrawImage(b, 0, 0, size.Width, size.Height);
+                    new_list.Add(bNew);
+
+                }                
+            }
+            return new_list;
+        }
+        public static void Upload(List<Bitmap> list, string path) {
+            for (int i = 0; i < list.Count; i++)
+            {
+                Bitmap b = list[i];
+                b.Save(path+"\\"+i.ToString()+".png", ImageFormat.Png);
+            }
+        }
+        public static Size GetDimensions(Bitmap img) {
+
+            Size dimensions = new Size(img.Height, img.Width);
             return dimensions;
         }
         public static Bitmap Inp(string path) {
