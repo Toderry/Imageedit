@@ -9,12 +9,33 @@ namespace Imageedit
 {
     public static class Imageeditor
     {
+
         public static List<Bitmap> Load(string path)
         {
             List<Bitmap> list = new List<Bitmap>();
-            var BT = new Bitmap(@"C:\Users\Андрей Родыгин\Desktop\in\Снимок экрана (1).png");
-            list.Add(BT);
+            FileInfo[] lists;
+
+            System.IO.DirectoryInfo directoryInfo = new System.IO.DirectoryInfo(path);
+            if (directoryInfo.Exists)
+            {
+                // ищем в корневом каталоге
+                lists= directoryInfo.GetFiles("*.(bmp|jpg|jpeg|png)", System.IO.SearchOption.TopDirectoryOnly);
+                foreach (FileInfo file in lists)
+                {
+                   
+                    list.Add(Inp(file.FullName));
+                }
+            }
+
             return list;
+        }
+        public static Tuple<int, int> GetDimensions(Bitmap img) {
+
+            Tuple<int, int> dimensions = new Tuple<int, int>(img.Height, img.Width);
+            return dimensions;
+        }
+        public static Bitmap Inp(string path) {
+            return new Bitmap(path);
         }
     }
 }
